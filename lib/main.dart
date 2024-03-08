@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:smart_locate/main.mapper.g.dart';
 import 'package:smart_locate/screens/login/login_screen.dart';
 
 void main() {
+  initializeJsonMapper();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }

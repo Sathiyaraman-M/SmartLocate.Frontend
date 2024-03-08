@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_locate/components/app_drawer.dart';
 import 'package:smart_locate/screens/login/login_screen.dart';
 import 'package:smart_locate/screens/map_screen.dart';
 
@@ -11,6 +12,7 @@ class MainScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Smart Locate'),
       ),
+      drawer: const AppDrawer(),
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

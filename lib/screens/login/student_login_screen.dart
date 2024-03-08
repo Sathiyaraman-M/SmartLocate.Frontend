@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_locate/models/auth/student_login_request.dart';
 import 'package:smart_locate/screens/main_screen.dart';
+import 'package:smart_locate/services/api/student_login_service.dart';
 
 class StudentLoginScreen extends StatelessWidget {
   const StudentLoginScreen({Key? key}) : super(key: key);
@@ -52,13 +54,13 @@ class _StudentLoginBody extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           child: TextField(
-            controller: provider.regNumberController,
+            controller: provider.emailController,
             decoration: const InputDecoration(
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(50))),
               contentPadding:
                   EdgeInsets.only(left: 20, bottom: 0, top: 0, right: 20),
-              labelText: 'Register Number',
+              labelText: 'Email',
             ),
           ),
         ),
@@ -106,31 +108,60 @@ class _StudentLoginBody extends StatelessWidget {
 }
 
 class _StudentLoginState extends ChangeNotifier {
-  final regNumberController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void login(BuildContext context) {
-    if (regNumberController.text.isEmpty) {
+  Future login(BuildContext context) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+              content: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 20),
+                  Expanded(child: Text('Logging in...'))
+                ],
+              ));
+        },
+        barrierDismissible: false);
+    if (emailController.text.isEmpty) {
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Please enter your register number'),
+        content: Text('Please enter your email'),
       ));
       return;
     }
     if (passwordController.text.isEmpty) {
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Please enter your password'),
       ));
       return;
     }
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: ((context) => const MainScreen())),
-        (_) => false);
+    var result = await StudentLoginService.loginAsync(StudentLoginRequest(email: emailController.text, password: passwordController.text));
+    if(result) {
+      if (context.mounted) {
+        Navigator.pop(context);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: ((context) => const MainScreen())),
+                (_) => false);
+      }
+    } else {
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Not Working - Some Error')));
+      }
+    }
   }
 
   @override
   void dispose() {
-    regNumberController.dispose();
+    emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
